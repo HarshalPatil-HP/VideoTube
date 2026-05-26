@@ -12,4 +12,4 @@ let connectionInstance=async()=>{
         process.exit(1);
     }
 }
-export default connectionInstance
+export default connectionInstance   

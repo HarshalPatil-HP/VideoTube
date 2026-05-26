@@ -16,4 +16,4 @@ class apireject extends Error{
     }
 }
 
-export {apireject}
+export {apireject }
