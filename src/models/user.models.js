@@ -1,7 +1,9 @@
 
 
 import mongoose, { Schema } from "mongoose";
-
+import mongooseHook from "mongoose-hook";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken/lib/JsonWebTokenError";
 let userschema=new Schema({
     uname:{
         type:String,
@@ -57,6 +59,40 @@ let userschema=new Schema({
 },
 {timestamps:true}
 )
+
+
+userschema.pre("save",async function (next) {
+    if(!this.modified("password")) return next()
+    this.password=bcrypt.hash(this.password,10)
+    next()
+})
+
+userschema.methods.isPasswordCorrect=async function (password) {
+    return await bcrypt.compare(password,this.password)
+}
+
+userschema.methods.getaccesstoken=function(){
+    return jwt.sign({
+        _id=this._id,
+        email=this.email
+    },
+    process.env.ACCESS_TOKEN,
+    {
+        expiresIn:process.env.ACCESS_EXPIRY
+    }
+)
+}
+userschema.methods.getacrefreshtoken=function(){
+    return jwt.sign({
+        _id=this._id,
+       
+    },
+    process.env.REFRESH_TOKEN,
+    {
+        expiresIn:process.env.REFRESH_EXPIRY
+    }
+)
+}
 
 
 export let User=mongoose.model("User",userschema)
